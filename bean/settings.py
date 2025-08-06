@@ -52,6 +52,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
     'drf_yasg',
     'cafe',  #추가, 늘여서 'post.apps.PostConfig'라고 적어도 된다는 비밀 아닌 비밀
+    'chair',
+    'floorplan',
+    'owner',
+    'review',
+    'table',
+    'tag',
+    'user',
 ]
 
 MIDDLEWARE = [
