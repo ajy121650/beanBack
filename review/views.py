@@ -8,7 +8,7 @@ from cafe.models import Cafe
 from review.models import Review
 from review.serializers import ReviewSerializer
 from django.contrib.auth.models import User
-from utils.crawling import get_reviews_by_cafe_name
+from .utils.crawling import get_reviews_by_cafe_name
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 

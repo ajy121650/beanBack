@@ -18,26 +18,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ### BASE_DIR = ~~~ 밑에 추가
 import os, environ
 
-env = environ.Env(
-    DEBUG=(bool, True)
-)
+from dotenv import load_dotenv
 
-environ.Env.read_env(
-    env_file=os.path.join(BASE_DIR, '.env')
-)
+# .env 파일 로드
+load_dotenv(dotenv_path=BASE_DIR / ".env")
+
+# 환경변수 불러오기
+SECRET_KEY = os.getenv("SECRET_KEY")  # ✅ dotenv 방식
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
 ### 여기까지 추가
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-### 변경
-SECRET_KEY =env('SECRET_KEY')
-### 여기까지 변경
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -48,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
     'drf_yasg',
     'cafe',  #추가, 늘여서 'post.apps.PostConfig'라고 적어도 된다는 비밀 아닌 비밀
