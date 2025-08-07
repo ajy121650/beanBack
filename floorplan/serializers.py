@@ -4,7 +4,7 @@ from .models import FloorPlan
 
 
 class FloorPlanSerializer(ModelSerializer):
-    #TODO 제가 추후에 구현해 놓겠습니다.
+    #TODO 준영
     class Meta:
         model = FloorPlan
         fields = "__all__"
