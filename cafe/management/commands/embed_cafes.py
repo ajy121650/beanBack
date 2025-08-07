@@ -10,12 +10,12 @@ from django.db import close_old_connections
 openai.api_key = settings.OPENAI_API_KEY
 
 def get_embedding(text, model="text-embedding-3-small"):
-    text = text.replace("\n", " ")  # 1️⃣
-    response = openai.embeddings.create(  # 2️⃣
+    text = text.replace("\n", " ")
+    response = openai.embeddings.create(
         model=model,
         input=[text]
     )
-    return response.data[0].embedding  # 3️⃣
+    return response.data[0].embedding
 
 def process_cafe(cafe):
     # 각 스레드에서 새로운 DB 커넥션을 사용하도록
@@ -26,14 +26,11 @@ def process_cafe(cafe):
         addr_vec = get_embedding(embedding_addr_text)
         desc_vec = get_embedding(embedding_desc_text)
 
-        # 1) 리스트 → NumPy 배열
         addr_arr = np.array(addr_vec, dtype="float32")
         desc_arr = np.array(desc_vec, dtype="float32")
 
-        # 2) 가중합
         combined_arr = 0.5 * addr_arr + 0.5 * desc_arr
 
-        # 3) (필요하면) 다시 리스트로 변환
         vec = combined_arr.tolist()
 
         cafe.embeddings = vec
@@ -53,7 +50,7 @@ class Command(BaseCommand):
         total = len(cafes)
         print(f"[INFO] 벡터화할 카페 수: {total}")
 
-        # 최대 5개 스레드로 동시에 처리
+        # 최대 10개 스레드로 동시에 처리
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(process_cafe, cafe): cafe.id for cafe in cafes}
             for i, future in enumerate(concurrent.futures.as_completed(futures), 1):

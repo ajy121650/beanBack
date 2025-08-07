@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'review',
     'table',
     'tag',
-    'user',
 ]
 
 MIDDLEWARE = [

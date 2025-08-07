@@ -44,11 +44,10 @@ class Command(BaseCommand):
                         self.stdout.write(f"[{cafe.name}] no review → skip")
                         continue
                     
-                    # DB 저장
                     for tag_name, score in ratings.items():
                         tag_obj, _ = Tag.objects.get_or_create(content=tag_name)
                         CafeTagRating.objects.update_or_create(
-                            cafe=cafe,           # ← 여기!
+                            cafe=cafe,
                             tag=tag_obj,
                             defaults={"rating": score}
                         )

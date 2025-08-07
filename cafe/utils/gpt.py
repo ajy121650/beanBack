@@ -1,7 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
-# gpt/views.py
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -62,14 +60,13 @@ review_keyword_prompt = (
 
 def review_description(review_text):
     response = client.chat.completions.create(
-    model="gpt-4.1-nano",
-    messages=[
-        {"role": "system", "content": review_description_prompt},
-        {"role": "user", "content": review_text}
-    ]
-)
+        model="gpt-4.1-nano",
+        messages=[
+            {"role": "system", "content": review_description_prompt},
+            {"role": "user", "content": review_text}
+        ]
+    )
     return response.choices[0].message.content
-
 
 @csrf_exempt
 def review_tag_rating(review_text: str) -> dict:
@@ -77,13 +74,11 @@ def review_tag_rating(review_text: str) -> dict:
         model="gpt-4.1-nano",
         messages=[
             {"role": "system", "content": review_tag_rating_prompt},
-            {"role": "user",   "content": review_text}
+            {"role": "user", "content": review_text}
         ]
     )
     content = response.choices[0].message.content
     return json.loads(content)
-
-
 
 @csrf_exempt
 def review_keyword(review_text: str) -> list:
@@ -95,5 +90,5 @@ def review_keyword(review_text: str) -> list:
         ]
     )
     content = response.choices[0].message.content
-    return json.loads(content)  
+    return json.loads(content)
 
