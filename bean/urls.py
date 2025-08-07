@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/cafes/', include('cafe.urls')), #cafe 폴더의 urls.py 파일로 가서 이후 url을 찾아라
     path('api/reviews/', include('review.urls')),
     path('api/tags/', include('tag.urls')),
+    path('api/floorplans/', include('floorplan.urls')),
+    path('api/chairs/', include('chair.urls')),    
     # swagger path
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

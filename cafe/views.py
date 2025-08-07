@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from .models import Cafe, CafeTagRating
 from .serializers import CafeSerializer
 from tag.models import Tag
+from owner.models import Owner
 
 from .utils.in_memory_faiss import search_similar_cafes
 import traceback
@@ -23,11 +24,11 @@ class CafeListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
+        #TODO 로그인 해서 owner 정보 추가하는 로직을 추가해주세요. (민경누나)
         name = request.data.get("name")
         address = request.data.get("address")
         description = request.data.get("description")
         photo_urls = request.data.get("photo_urls")
-        pos_connected = request.data.get("pos_connected")
 
         tag_contents = request.data.get("tags")
         keyword_contents = request.data.get("keywords")
@@ -37,9 +38,6 @@ class CafeListView(APIView):
         
         if not photo_urls:
             photo_urls = []
-        
-        if not pos_connected:
-            pos_connected = False
 
         cafe = Cafe.objects.create(
                 name=name,
@@ -48,7 +46,6 @@ class CafeListView(APIView):
                 has_wifi=True,
                 average_rating=0.0,
                 photo_urls=photo_urls,
-                pos_connected=pos_connected
             )
 
         if tag_contents is not None:
@@ -68,13 +65,26 @@ class CafeListView(APIView):
 
 
 class CafeDetailView(APIView):
-    def get(self, request, cafe_id):
+    """
+        def get(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
         except:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = CafeSerializer(instance=cafe)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    """
+    
+    def get(self, request, owner_id):
+        try:
+            owner = Owner.objects.get(id=owner_id)
+            cafes = Cafe.objects.filter(owner=owner)
+        except:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CafeSerializer(instance=cafes, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     

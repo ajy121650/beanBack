@@ -9,6 +9,8 @@ class CafeSerializer(serializers.ModelSerializer):
         model = Cafe
         fields = '__all__'
 
+'''
+
 # read_only
 class CafeTagRatingSerializer(serializers.ModelSerializer):
     cafe = CafeSerializer(read_only=True)
@@ -22,3 +24,5 @@ class CafeTagRatingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CafeTagRating
         fields = ['cafe', 'tag', 'rating']
+        
+'''

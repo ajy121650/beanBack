@@ -4,9 +4,9 @@ from .views import CafeUploadView, CafeListView, CafeDetailView, CafeImageUpdate
 app_name = 'cafes'
 
 urlpatterns = [
-    path("upload-cafes/", CafeUploadView.as_view(), name='upload_cafes'),
-    path("update-images/", CafeImageUpdateView.as_view(), name='update_images'),
+    path("upload_cafes/", CafeUploadView.as_view(), name='upload_cafes'),
+    path("update_images/", CafeImageUpdateView.as_view(), name='update_images'),
     path("", CafeListView.as_view()),
-    path("<int:cafe_id>/", CafeDetailView.as_view()),
+    path("<int:owner_id>/", CafeDetailView.as_view()),
     path("chat/", CafeChatView.as_view(), name='chat'),
 ]
