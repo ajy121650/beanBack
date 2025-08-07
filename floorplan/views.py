@@ -26,7 +26,7 @@ class FloorPlanDetailView(APIView):
         pass
 
     def put(self, request, floorplan_id):
-        #TODO 
+        #TODO 준영
         #pass 키워드 지우고 구현하기
         pass
         
