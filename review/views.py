@@ -17,7 +17,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 class ReviewCrawlingView(APIView):
     def post(self, request):
         cafes = Cafe.objects.all()
-        #cafes = Cafe.objects.filter(address__contains="관악구")
         total_created = 0
         #results = []
 
@@ -29,7 +28,6 @@ class ReviewCrawlingView(APIView):
                     review = Review.objects.create(
                         user= None,
                         cafe=cafe,
-                        rating=0.0,
                         content=review_text
                     )
                     created_reviews.append(review)

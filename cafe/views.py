@@ -196,8 +196,7 @@ class CafeUploadView(APIView):
                     address=address,
                     description="",
                     average_rating=0.0,
-                    photo_urls=[],
-                    pos_connected=False
+                    photo_urls=[]
                 )
                 created_cafes.append(cafe)
 
