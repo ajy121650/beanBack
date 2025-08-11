@@ -58,6 +58,26 @@ review_keyword_prompt = (
     "결과는 JSON 배열 형식으로 5개 이하의 키워드를 반환해줘. 예: [\"소금빵\", \"카공\", \"콘센트 많음\", \"감성카페\", \"데이트\"]"
 )
 
+query_keyword_prompt = (
+    "너는 카페 검색 질의에서 핵심 키워드를 추출하는 전문가다.\n"
+    "아래 원칙을 지켜 0~5개의 키워드를 JSON 배열로만 출력하라(설명 금지).\n"
+    "[원칙]\n"
+    "1) 질의가 짧거나 뾰족한 정보가 없으면 빈 배열([])을 출력한다.\n"
+    "2) 키워드는 명확하고 간결한 한 단어 또는 짧은 구(띄어쓰기 포함 10자 이내)로 표기한다.\n"
+    "3) 불용어·감탄사·서술형 문장·이모지·해시태그·따옴표를 제거하고, 핵심 명사/명사구만 남긴다.\n"
+    "4) 동의어/중복은 하나로 통일한다(예: ‘조용함’, ‘소음 적음’ → ‘조용함’).\n"
+    "5) 아래 유형의 뾰족한 정보를 우선한다:\n"
+    "- 메뉴명: 소금빵, 바닐라라떼, 에그타르트\n"
+    "- 분위기/목적: 조용함, 카공, 팀플, 감성카페\n"
+    "- 공간 특징: 콘센트 많음, 좌석 넓음, 햇살 잘 들어옴\n"
+    "- 사용 용도: 혼카, 데이트, 스터디, 인스타감성\n"
+    "- 기타: 강아지 동반 가능, 뷰맛집\n"
+    "6) 출력은 유효한 JSON 배열이어야 하며, 그 외 텍스트를 섞지 않는다.\n"
+    "7) 가능하면 표준 형태로 정규화한다(예: ‘카공하기 좋음’ → ‘카공’).\n"
+    "[출력 형식 예]\n"
+    "[\"소금빵\",\"카공\",\"콘센트 많음\",\"감성카페\",\"데이트\"]"
+)
+
 def review_description(review_text):
     response = client.chat.completions.create(
         model="gpt-4.1-nano",
@@ -92,3 +112,14 @@ def review_keyword(review_text: str) -> list:
     content = response.choices[0].message.content
     return json.loads(content)
 
+@csrf_exempt
+def query_keyword(query_text: str) -> list:
+    response = client.chat.completions.create(
+        model="gpt-4.1-nano",
+        messages=[
+            {"role": "system", "content": query_keyword_prompt},
+            {"role": "user", "content": query_text}
+        ]
+    )
+    content = response.choices[0].message.content
+    return json.loads(content) if content else []

@@ -11,7 +11,7 @@ from .serializers import CafeSerializer
 from tag.models import Tag
 from owner.models import Owner
 
-from .utils.in_memory_faiss import search_similar_cafes
+from .utils.in_memory_faiss import search_with_address_and_keywords_then_embedding
 import traceback
 
 import json
@@ -155,7 +155,7 @@ class CafeChatView(APIView):
                 )
 
             # FAISS + RAG 검색
-            cafes = search_similar_cafes(question, top_k=10)
+            cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
         except Exception as e:
             traceback.print_exc()         # 터미널에 전체 에러 스택 출력
             return Response(
