@@ -64,9 +64,8 @@ class CafeListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CafeDetailView(APIView):
-    """
-        def get(self, request, cafe_id):
+class CafeDetailView(APIView):   
+    def get(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
         except:
@@ -75,18 +74,7 @@ class CafeDetailView(APIView):
         serializer = CafeSerializer(instance=cafe)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    """
-    
-    def get(self, request, owner_id):
-        try:
-            owner = Owner.objects.get(id=owner_id)
-            cafes = Cafe.objects.filter(owner=owner)
-        except:
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = CafeSerializer(instance=cafes, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def delete(self, request, cafe_id):
         try:

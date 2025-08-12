@@ -5,18 +5,31 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .models import FloorPlan
-from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer
+from cafe.models import Cafe
+from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer, FloorPlanRequestSerializer
 
 class FloorPlanListView(APIView):
     def get(self, request):
-        floor_plans = FloorPlan.objects.all()
+        floor_plans = FloorPlan.objects.prefetch_related("chairs", "tables").all()
         serializer = FloorPlanSerializer(floor_plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        #TODO 준영
-        #pass 키워드 지우고 구현하기
-        pass
+        width = request.data.get("width")
+        height = request.data.get("height")
+        cafe_id = request.data.get("cafe_id")
+
+        cafe = Cafe.objects.get(id=cafe_id)
+        if not cafe:
+            return Response({"error": "Cafe not found"}, status=status.HTTP_404_NOT_FOUND)
+        floor_plan = FloorPlan.objects.create(
+            width=width,
+            height=height,
+            cafe=cafe
+        )
+
+        serializer = FloorPlanSerializer(floor_plan)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class FloorPlanDetailView(APIView):
@@ -26,9 +39,12 @@ class FloorPlanDetailView(APIView):
         pass
 
     def put(self, request, floorplan_id):
-        #TODO 준영
-        #pass 키워드 지우고 구현하기
-        pass
+        floorplan = FloorPlan.objects.get(pk=floorplan_id)
+        serializer = FloorPlanRequestSerializer(floorplan, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
     def delete(self, request, floorplan_id):

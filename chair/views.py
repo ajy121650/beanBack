@@ -4,7 +4,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from .models import Chair
+from .models import Chair, FloorPlan
+from .serializers import ChairSerializer
 
 class ChairListView(APIView):
     def get(self, request):
@@ -13,9 +14,11 @@ class ChairListView(APIView):
         pass
 
     def post(self, request):
-        #TODO 일단 미개발 필요없을 가능성 농후
-        # pass 키워드 지우고 구현하기
-        pass
+        serializer = ChairSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class ChairDetailView(APIView):
