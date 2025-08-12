@@ -61,6 +61,17 @@ class FloorPlanOwnerView(APIView):
         #TODO 수현
         #pass 키워드 지우고 구현하기
         pass
+
+class FloorPlanCafeView(APIView):
+    def get(self, request, cafe_id):
+        try:
+            cafe = Cafe.objects.get(id=cafe_id)
+        except Cafe.DoesNotExist:
+            return Response({"error": "Cafe not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        floor_plans = FloorPlan.objects.filter(cafe=cafe).prefetch_related("chairs", "tables")
+        serializer = FloorPlanSerializer(floor_plans, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class FloorPlanDetectionView(APIView):
     def get(self, request):
