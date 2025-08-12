@@ -135,10 +135,10 @@ class CafeDetailView(APIView):
 class CafeChatView(APIView):
     def get(self, request):
         try:
-            question = request.data.get("question")
+            question = request.query_params.get("question")
             if not question:
                 return Response(
-                    {"error": "question 필드를 전달해주세요."},
+                    {"error": "question 쿼리스트링을 넣어주세요."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 

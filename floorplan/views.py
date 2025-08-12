@@ -74,7 +74,7 @@ class FloorPlanCafeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class FloorPlanDetectionView(APIView):
-    def get(self, request):
+    def post(self, request):
         #TODO 민경
         #pass 키워드 지우고 구현하기
         pass
