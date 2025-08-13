@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from .models import FloorPlan
 from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer
-
+from owner.models import Owner
+from cafe.models import Cafe
 class FloorPlanListView(APIView):
     def get(self, request):
         floor_plans = FloorPlan.objects.all()
@@ -21,10 +22,13 @@ class FloorPlanListView(APIView):
 
 class FloorPlanDetailView(APIView):
     def get(self, request, floorplan_id):
-        #TODO 수현
-        #pass 키워드 지우고 구현하기
-        pass
-
+        try:
+                floor_plan = FloorPlan.objects.get(id=floorplan_id)
+        except:
+                return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FloorPlanSerializer(floor_plan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+                
     def put(self, request, floorplan_id):
         #TODO 준영
         #pass 키워드 지우고 구현하기
@@ -42,10 +46,16 @@ class FloorPlanDetailView(APIView):
 
 class FloorPlanOwnerView(APIView):
     def get(self, request, owner_id):
-        #TODO 수현
-        #pass 키워드 지우고 구현하기
-        pass
-    
+        try: 
+            owner = Owner.objects.get(id=owner_id)
+            cafes = Cafe.objects.filter(owner=owner_id)
+            cafes_id = cafes.values_list('id', flat=True)
+            floor_plans = FloorPlan.objects.filter(cafe__in=cafes_id)
+        except:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FloorPlanSerializer(floor_plans, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class FloorPlanDetectionView(APIView):
     def get(self, request):
         #TODO 민경
