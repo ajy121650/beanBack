@@ -11,7 +11,7 @@ from .serializers import CafeSerializer
 from tag.models import Tag
 from owner.models import Owner
 
-from .utils.in_memory_faiss import search_similar_cafes
+from .utils.in_memory_faiss import search_with_address_and_keywords_then_embedding
 import traceback
 
 import json
@@ -64,9 +64,8 @@ class CafeListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CafeDetailView(APIView):
-    """
-        def get(self, request, cafe_id):
+class CafeDetailView(APIView):   
+    def get(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
         except:
@@ -75,18 +74,7 @@ class CafeDetailView(APIView):
         serializer = CafeSerializer(instance=cafe)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    """
-    
-    def get(self, request, owner_id):
-        try:
-            owner = Owner.objects.get(id=owner_id)
-            cafes = Cafe.objects.filter(owner=owner)
-        except:
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = CafeSerializer(instance=cafes, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def delete(self, request, cafe_id):
         try:
@@ -147,15 +135,15 @@ class CafeDetailView(APIView):
 class CafeChatView(APIView):
     def get(self, request):
         try:
-            question = request.data.get("question")
+            question = request.query_params.get("question")
             if not question:
                 return Response(
-                    {"error": "question 필드를 전달해주세요."},
+                    {"error": "question 쿼리스트링을 넣어주세요."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             # FAISS + RAG 검색
-            cafes = search_similar_cafes(question, top_k=10)
+            cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
         except Exception as e:
             traceback.print_exc()         # 터미널에 전체 에러 스택 출력
             return Response(
@@ -196,8 +184,7 @@ class CafeUploadView(APIView):
                     address=address,
                     description="",
                     average_rating=0.0,
-                    photo_urls=[],
-                    pos_connected=False
+                    photo_urls=[]
                 )
                 created_cafes.append(cafe)
 
