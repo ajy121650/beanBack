@@ -42,6 +42,7 @@ urlpatterns = [
     path('api/tags/', include('tag.urls')),
     path('api/floorplans/', include('floorplan.urls')),
     path('api/chairs/', include('chair.urls')),    
+    path('api/owner/', include('owner.urls')),
     # swagger path
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

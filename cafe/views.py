@@ -14,6 +14,9 @@ from owner.models import Owner
 from .utils.in_memory_faiss import search_similar_cafes
 import traceback
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 import json
 import os
 
@@ -23,12 +26,35 @@ class CafeListView(APIView):
         serializer = CafeSerializer(cafes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @swagger_auto_schema(
+        operation_id="카페 생성",
+        operation_description="새로운 카페를 생성합니다.",
+        request_body=CafeSerializer,
+        responses={201: CafeSerializer, 404: "Not Found", 400: "Bad Request", 401: "Unauthorized"},
+        manual_parameters=[openapi.Parameter("Authorization", openapi.IN_HEADER, description="access token", type=openapi.TYPE_STRING)]
+    )
     def post(self, request):
-        #TODO 로그인 해서 owner 정보 추가하는 로직을 추가해주세요. (민경누나)
+        
         name = request.data.get("name")
         address = request.data.get("address")
         description = request.data.get("description")
         photo_urls = request.data.get("photo_urls")
+        #로그인 해서 owner 정보 추가하는 로직
+        owner = request.owner
+        if not owner.is_authenticated:
+            return Response(
+                {"detail": "please signin"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+        if not name:
+            return Response(
+                {"detail": "[name] fields missing."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not not address:
+            return Response(
+                {"detail": "[address] fields missing."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         tag_contents = request.data.get("tags")
         keyword_contents = request.data.get("keywords")
