@@ -27,7 +27,7 @@ from drf_yasg import openapi
 # swagger settings
 schema_view = get_schema_view(
     openapi.Info(
-        title="LIKELION Blog API",
+        title="Bean API",
         default_version='v1',
         description="Test description",
     ),

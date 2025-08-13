@@ -15,6 +15,11 @@ from drf_yasg import openapi
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class ReviewCrawlingView(APIView):
+    @swagger_auto_schema(
+        operation_id='리뷰 크롤링',
+        operation_description='모든 카페에 대한 리뷰를 크롤링하여 저장합니다.',
+        responses={201: "Success", 400: "Bad Request"}
+    )
     def post(self, request):
         cafes = Cafe.objects.all()
         total_created = 0
