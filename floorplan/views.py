@@ -11,7 +11,9 @@ from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer, Floo
 from owner.models import Owner
 
 from inference_sdk import InferenceHTTPClient
-import json, cv2
+
+from rest_framework.parsers import MultiPartParser, FormParser
+import json, cv2, tempfile
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -153,24 +155,32 @@ class FloorPlanCafeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanDetectionView(APIView):
-    @swagger_auto_schema(
-        operation_id="도면 객체 탐지",
-        operation_description="이미지 URL을 통해 도면에서 객체를 탐지합니다.",
-        manual_parameters=[
-            openapi.Parameter(
-                'image_url',
-                openapi.IN_QUERY,
-                description="이미지 URL",
-                type=openapi.TYPE_STRING,
-                required=True
-            )
-        ],
-        responses={200: FloorPlanDetectionSerializer, 400: "Bad Request"}
-    )
-    def get(self, request):
-        image_url = request.query_params.get("image_url")
-        if not image_url:
-            return Response({"error": "image_url query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
+  @swagger_auto_schema(
+      operation_id="도면 객체 탐지",
+      operation_description="이미지 URL을 통해 도면에서 객체를 탐지합니다.",
+      manual_parameters=[
+          openapi.Parameter(
+              'image_url',
+              openapi.IN_QUERY,
+              description="이미지 URL",
+              type=openapi.TYPE_STRING,
+              required=True
+          )
+      ],
+      responses={200: FloorPlanDetectionSerializer, 400: "Bad Request"}
+  )
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request):
+        image = request.FILES.get('image')
+        if not image:
+            return Response({"error": "No image uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 임시 파일로 저장
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_image:
+            for chunk in image.chunks():
+                temp_image.write(chunk)
+            temp_image_path = temp_image.name
 
         client = InferenceHTTPClient(
             api_url="https://serverless.roboflow.com",
@@ -180,7 +190,7 @@ class FloorPlanDetectionView(APIView):
         result = client.run_workflow(
             workspace_name="cho-voxnn",
             workflow_id="detect-count-and-visualize",
-            images={"image": image_url},
+            images={"image": open(temp_image_path, "rb")},
             use_cache=False
         )
 
