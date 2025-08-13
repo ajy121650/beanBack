@@ -5,8 +5,10 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .models import FloorPlan
+
 from cafe.models import Cafe
 from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer, FloorPlanRequestSerializer
+from owner.models import Owner
 
 class FloorPlanListView(APIView):
     def get(self, request):
@@ -34,10 +36,13 @@ class FloorPlanListView(APIView):
 
 class FloorPlanDetailView(APIView):
     def get(self, request, floorplan_id):
-        #TODO 수현
-        #pass 키워드 지우고 구현하기
-        pass
-
+        try:
+                floor_plan = FloorPlan.objects.get(id=floorplan_id)
+        except:
+                return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FloorPlanSerializer(floor_plan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+                
     def put(self, request, floorplan_id):
         floorplan = FloorPlan.objects.get(pk=floorplan_id)
         serializer = FloorPlanRequestSerializer(floorplan, data=request.data, partial=True)
@@ -58,9 +63,15 @@ class FloorPlanDetailView(APIView):
 
 class FloorPlanOwnerView(APIView):
     def get(self, request, owner_id):
-        #TODO 수현
-        #pass 키워드 지우고 구현하기
-        pass
+        try: 
+            owner = Owner.objects.get(id=owner_id)
+            cafes = Cafe.objects.filter(owner=owner_id)
+            cafes_id = cafes.values_list('id', flat=True)
+            floor_plans = FloorPlan.objects.filter(cafe__in=cafes_id)
+        except:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = FloorPlanSerializer(floor_plans, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanCafeView(APIView):
     def get(self, request, cafe_id):
@@ -72,7 +83,7 @@ class FloorPlanCafeView(APIView):
         floor_plans = FloorPlan.objects.filter(cafe=cafe).prefetch_related("chairs", "tables")
         serializer = FloorPlanSerializer(floor_plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 class FloorPlanDetectionView(APIView):
     def post(self, request):
         #TODO 민경
