@@ -10,6 +10,9 @@ from cafe.models import Cafe
 from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer, FloorPlanRequestSerializer
 from owner.models import Owner
 
+from inference_sdk import InferenceHTTPClient
+import json, cv2
+
 class FloorPlanListView(APIView):
     def get(self, request):
         floor_plans = FloorPlan.objects.prefetch_related("chairs", "tables").all()
@@ -85,7 +88,45 @@ class FloorPlanCafeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanDetectionView(APIView):
-    def post(self, request):
-        #TODO 민경
-        #pass 키워드 지우고 구현하기
-        pass
+    def get(self, request):
+        image_url = request.query_params.get("image_url")
+        if not image_url:
+            return Response({"error": "image_url query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        client = InferenceHTTPClient(
+            api_url="https://serverless.roboflow.com",
+            api_key="WMgJWPbuVlyxzmjDsndL"
+        )
+
+        result = client.run_workflow(
+            workspace_name="cho-voxnn",
+            workflow_id="detect-count-and-visualize",
+            images={"image": image_url},
+            use_cache=False
+        )
+
+        first = result[0]
+        detections = first["predictions"]["predictions"]
+        width = first["image"]["width"]
+        height = first["image"]["height"]
+
+        response_data = {
+            "image_size": {
+                "width": width,
+                "height": height
+            },
+            "detections": [
+                {
+                    "class": det["class"],
+                    "confidence": det["confidence"],
+                    "x": det["x"],
+                    "y": det["y"],
+                    "width": det["width"],
+                    "height": det["height"]
+                }
+                for det in detections
+            ]
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
