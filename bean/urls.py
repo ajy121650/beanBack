@@ -42,7 +42,6 @@ urlpatterns = [
     path('api/tags/', include('tag.urls')),
     path('api/floorplans/', include('floorplan.urls')),
     path('api/chairs/', include('chair.urls')),    
-    path('api/chairs/', include('chair.urls')),
     path('api/tables/', include('table.urls')), 
     path('api/owners/', include('owner.urls')),   
 
