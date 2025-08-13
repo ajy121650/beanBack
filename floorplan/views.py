@@ -11,17 +11,29 @@ from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer, Floo
 from owner.models import Owner
 
 from inference_sdk import InferenceHTTPClient
+
 from rest_framework.parsers import MultiPartParser, FormParser
 import json, cv2, tempfile
-
-# Create your views here.
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class FloorPlanListView(APIView):
+    @swagger_auto_schema(
+        operation_id="층별도 목록 조회",
+        operation_description="모든 층별도의 목록을 반환합니다.",
+        responses={200: FloorPlanSerializer(many=True)}
+    )
     def get(self, request):
         floor_plans = FloorPlan.objects.prefetch_related("chairs", "tables").all()
         serializer = FloorPlanSerializer(floor_plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_id="층별도 생성",
+        operation_description="새로운 층별도를 생성합니다.",
+        request_body=FloorPlanRequestSerializer,
+        responses={201: FloorPlanSerializer, 400: "Bad Request"}
+    )
     def post(self, request):
         width = request.data.get("width")
         height = request.data.get("height")
@@ -41,6 +53,20 @@ class FloorPlanListView(APIView):
 
 
 class FloorPlanDetailView(APIView):
+    @swagger_auto_schema(
+        operation_id="도면 상세 조회",
+        operation_description="floorplan_id에 해당하는 도면의 상세 정보를 반환합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'floorplan_id',
+                openapi.IN_PATH,
+                description="도면 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={200: FloorPlanSerializer, 404: "Not found"}
+    )
     def get(self, request, floorplan_id):
         try:
                 floor_plan = FloorPlan.objects.get(id=floorplan_id)
@@ -49,6 +75,12 @@ class FloorPlanDetailView(APIView):
         serializer = FloorPlanSerializer(floor_plan)
         return Response(serializer.data, status=status.HTTP_200_OK)
                 
+    @swagger_auto_schema(
+        operation_id="도면 수정",
+        operation_description="floorplan_id에 해당하는 도면을 수정합니다.",
+        request_body=FloorPlanRequestSerializer,
+        responses={200: FloorPlanSerializer, 404: "Not found"}
+    )
     def put(self, request, floorplan_id):
         floorplan = FloorPlan.objects.get(pk=floorplan_id)
         serializer = FloorPlanRequestSerializer(floorplan, data=request.data, partial=True)
@@ -56,8 +88,12 @@ class FloorPlanDetailView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
 
+    @swagger_auto_schema(
+        operation_id="도면 삭제",
+        operation_description="floorplan_id에 해당하는 도면을 삭제합니다.",
+        responses={204: "No Content", 404: "Not found"}
+    )
     def delete(self, request, floorplan_id):
         try:
             floor_plan = FloorPlan.objects.get(pk=floorplan_id)
@@ -68,6 +104,20 @@ class FloorPlanDetailView(APIView):
 
 
 class FloorPlanOwnerView(APIView):
+    @swagger_auto_schema(
+        operation_id="소유자별 도면 조회",
+        operation_description="owner_id에 해당하는 소유자의 모든 도면을 반환합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'owner_id',
+                openapi.IN_PATH,
+                description="소유자 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={200: FloorPlanSerializer(many=True), 404: "Not found"}
+    )
     def get(self, request, owner_id):
         try: 
             owner = Owner.objects.get(id=owner_id)
@@ -80,6 +130,20 @@ class FloorPlanOwnerView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanCafeView(APIView):
+    @swagger_auto_schema(
+        operation_id="카페별 도면 조회",
+        operation_description="cafe_id에 해당하는 카페의 모든 도면을 반환합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'cafe_id',
+                openapi.IN_PATH,
+                description="카페 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={200: FloorPlanSerializer(many=True), 404: "Not found"}
+    )
     def get(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
@@ -91,6 +155,20 @@ class FloorPlanCafeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanDetectionView(APIView):
+  @swagger_auto_schema(
+      operation_id="도면 객체 탐지",
+      operation_description="이미지 URL을 통해 도면에서 객체를 탐지합니다.",
+      manual_parameters=[
+          openapi.Parameter(
+              'image_url',
+              openapi.IN_QUERY,
+              description="이미지 URL",
+              type=openapi.TYPE_STRING,
+              required=True
+          )
+      ],
+      responses={200: FloorPlanDetectionSerializer, 400: "Bad Request"}
+  )
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request):

@@ -68,6 +68,20 @@ class SignInView(APIView):
 
 
 class OwnerDetailCafeListView(APIView):
+    @swagger_auto_schema(
+        operation_id="오너의 카페 리스트 조회",
+        operation_description="owner_id에 해당하는 오너가 소유한 모든 카페 리스트를 반환합니다.",
+        responses={200: CafeSerializer(many=True), 404: "Owner not found"},
+        manual_parameters=[
+            openapi.Parameter(
+                'owner_id',
+                openapi.IN_PATH,
+                description="Owner의 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ]
+    )
     def get(self, request, owner_id):
         try:
             owner = Owner.objects.get(id=owner_id)
