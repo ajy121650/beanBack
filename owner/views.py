@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from cafe.models import Cafe
+from cafe.serializers import CafeSerializer
 from owner.models import Owner
 from .serializers import UserSerializer, OwnerSerializer
 from .request_serializers import SignUpRequestSerializer, SignInRequestSerializer 
@@ -64,3 +65,17 @@ class SignInView(APIView):
             return Response(
                 {"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class OwnerDetailCafeListView(APIView):
+    def get(self, request, owner_id):
+        try:
+            owner = Owner.objects.get(id=owner_id)
+        except Owner.DoesNotExist:
+            return Response({"error": "Owner not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        cafes = Cafe.objects.filter(owner=owner)
+        serializer = CafeSerializer(cafes, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

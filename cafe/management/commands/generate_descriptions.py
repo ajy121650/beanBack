@@ -30,7 +30,7 @@ class Command(BaseCommand):
     help = "Generate and save GPT-based cafe descriptions (multi‐threaded)"
 
     def handle(self, *args, **options):
-        cafes = list(Cafe.objects.filter(address__contains="관악구"))
+        cafes = list(Cafe.objects.all())
 
         with ThreadPoolExecutor(max_workers=5) as pool:
             futures = {pool.submit(process_description, cafe): cafe for cafe in cafes}
