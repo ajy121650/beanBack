@@ -11,6 +11,7 @@ from .serializers import TagSerializer
 from cafe.models import Cafe, CafeTagRating
 from cafe.serializers import CafeTagRatingSerializer, CafeTagRatingCreateSerializer
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class TagListView(APIView):
@@ -86,7 +87,20 @@ class CafeTagRatingView(APIView):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CafeTagRatingDetailView(APIView):
-    
+  @swagger_auto_schema(
+      operation_id='별점 상세 조회',
+      operation_description='특정 CafeTagRating의 상세 정보를 조회합니다.',
+      manual_parameters=[
+          openapi.Parameter(
+              'rating_id',
+              openapi.IN_PATH,
+              description="CafeTagRating ID",
+              type=openapi.TYPE_INTEGER,
+              required=True
+          )
+      ],
+      responses={200: CafeTagRatingSerializer, 404: 'Not Found'}
+  )
   def get_object(self, rating_id):
     try:
       return CafeTagRating.objects.get(id=rating_id)

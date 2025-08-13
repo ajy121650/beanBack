@@ -21,6 +21,11 @@ import json
 import os
 
 class CafeListView(APIView):
+    @swagger_auto_schema(
+        operation_id="카페 목록 조회",
+        operation_description="모든 카페의 목록을 반환합니다.",
+        responses={200: CafeSerializer(many=True)}
+    )
     def get(self, request):
         cafes =Cafe.objects.all()
         serializer = CafeSerializer(cafes, many=True)
@@ -90,7 +95,21 @@ class CafeListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CafeDetailView(APIView):   
+class CafeDetailView(APIView):
+    @swagger_auto_schema(
+        operation_id="카페 상세 조회",
+        operation_description="cafe_id에 해당하는 카페의 상세 정보를 반환합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'cafe_id',
+                openapi.IN_PATH,
+                description="카페 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={200: CafeSerializer, 404: "Not found"}
+    )
     def get(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
@@ -101,7 +120,20 @@ class CafeDetailView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
+    @swagger_auto_schema(
+        operation_id="카페 삭제",
+        operation_description="cafe_id에 해당하는 카페를 삭제합니다.",
+        responses={204: "No Content", 404: "Not found"},
+        manual_parameters=[
+            openapi.Parameter(
+                'cafe_id',
+                openapi.IN_PATH,
+                description="카페 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ]
+    )
     def delete(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
@@ -113,6 +145,21 @@ class CafeDetailView(APIView):
         cafe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @swagger_auto_schema(
+        operation_id="카페 정보 수정",
+        operation_description="cafe_id에 해당하는 카페 정보를 수정합니다.",
+        request_body=CafeSerializer,
+        responses={200: CafeSerializer, 400: "Bad Request", 404: "Not found"},
+        manual_parameters=[
+            openapi.Parameter(
+                'cafe_id',
+                openapi.IN_PATH,
+                description="카페 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ]
+    )
     def put(self, request, cafe_id):
         try:
             cafe = Cafe.objects.get(id=cafe_id)
@@ -159,6 +206,11 @@ class CafeDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class CafeChatView(APIView):
+    @swagger_auto_schema(
+        operation_id="카페 질문하기",
+        operation_description="카페에 대한 질문을 합니다.",
+        responses={200: "Success", 400: "Bad Request"}
+    )
     def get(self, request):
         try:
             question = request.query_params.get("question")
@@ -183,6 +235,17 @@ class CafeChatView(APIView):
 
 
 class CafeUploadView(APIView):
+    @swagger_auto_schema(
+        operation_id="카페 데이터 업로드",
+        operation_description="카페 데이터를 업로드합니다.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'file': openapi.Schema(type=openapi.TYPE_FILE)
+            }
+        ),
+        responses={201: "Created", 400: "Bad Request"}
+    )
     def post(self, request):
         try:
             # file_path = "data/cafe_opened_data.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
@@ -223,6 +286,11 @@ class CafeUploadView(APIView):
             }, status=500)
     
 class CafeImageUpdateView(APIView):
+    @swagger_auto_schema(
+        operation_id="카페 이미지 업데이트",
+        operation_description="모든 카페의 이미지를 업데이트합니다.",
+        responses={200: "Success", 400: "Bad Request"}
+    )
     def put(self, request):
         base_path = "/data/cafe_images/"
         idx = 0

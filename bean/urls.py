@@ -27,7 +27,7 @@ from drf_yasg import openapi
 # swagger settings
 schema_view = get_schema_view(
     openapi.Info(
-        title="LIKELION Blog API",
+        title="Bean API",
         default_version='v1',
         description="Test description",
     ),
@@ -42,7 +42,6 @@ urlpatterns = [
     path('api/tags/', include('tag.urls')),
     path('api/floorplans/', include('floorplan.urls')),
     path('api/chairs/', include('chair.urls')),    
-    path('api/chairs/', include('chair.urls')),
     path('api/tables/', include('table.urls')), 
     path('api/owners/', include('owner.urls')),   
 

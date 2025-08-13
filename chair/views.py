@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # Create your views here.
 from rest_framework.views import APIView
@@ -15,6 +17,12 @@ class ChairListView(APIView):
         # pass 키워드 지우고 구현하기
         pass
 
+    @swagger_auto_schema(
+        operation_id="의자 생성",
+        operation_description="새로운 의자를 생성합니다.",
+        request_body=ChairSerializer,
+        responses={201: ChairSerializer, 400: "Bad Request"},
+    )
     def post(self, request):
         serializer = ChairSerializer(data=request.data)
         if serializer.is_valid():
@@ -29,6 +37,21 @@ class ChairDetailView(APIView):
         # pass 키워드 지우고 구현하기
         pass
 
+    @swagger_auto_schema(
+        operation_id="의자 정보 수정",
+        operation_description="chair_id에 해당하는 의자 정보를 수정합니다.",
+        request_body=ChairRequestSerializer,
+        responses={200: ChairSerializer, 400: "Bad Request", 404: "Not found"},
+        manual_parameters=[
+            openapi.Parameter(
+                'chair_id',
+                openapi.IN_PATH,
+                description="의자 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ]
+    )
     def put(self, request, chair_id):
         try:
             chair = Chair.objects.get(pk=chair_id)
@@ -43,6 +66,20 @@ class ChairDetailView(APIView):
         except Exception as e:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+    @swagger_auto_schema(
+        operation_id="의자 삭제",
+        operation_description="chair_id에 해당하는 의자를 삭제합니다.",
+        responses={204: "No Content", 404: "Not found"},
+        manual_parameters=[
+            openapi.Parameter(
+                'chair_id',
+                openapi.IN_PATH,
+                description="의자 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ]
+    )
     def delete(self, request, chair_id):
         try:
             chair = Chair.objects.get(pk=chair_id)
@@ -50,4 +87,3 @@ class ChairDetailView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Chair.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
