@@ -155,21 +155,22 @@ class FloorPlanCafeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanDetectionView(APIView):
-  @swagger_auto_schema(
-      operation_id="도면 객체 탐지",
-      operation_description="이미지 URL을 통해 도면에서 객체를 탐지합니다.",
-      manual_parameters=[
-          openapi.Parameter(
-              'image_url',
-              openapi.IN_QUERY,
-              description="이미지 URL",
-              type=openapi.TYPE_STRING,
-              required=True
-          )
-      ],
-      responses={200: FloorPlanDetectionSerializer, 400: "Bad Request"}
-  )
     parser_classes = (MultiPartParser, FormParser)
+
+    @swagger_auto_schema(
+        operation_id="도면 객체 탐지",
+        operation_description="이미지 URL을 통해 도면에서 객체를 탐지합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'image_url',
+                openapi.IN_QUERY,
+                description="이미지 URL",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ],
+        responses={200: FloorPlanDetectionSerializer, 400: "Bad Request"}
+    )
 
     def post(self, request):
         image = request.FILES.get('image')

@@ -36,7 +36,7 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['api.beanzari.co.kr','3.37.134.115','localhost', '127.0.0.1']
 
 
 # Application definition
@@ -93,10 +93,14 @@ WSGI_APPLICATION = 'bean.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+		"default": {
+				"ENGINE": "django.db.backends.mysql",
+				"NAME": os.environ.get("DB_NAME"),
+                "USER": os.environ.get("DB_USER"),
+                "PASSWORD": os.environ.get("DB_PASSWORD"),
+                "HOST": os.environ.get("DB_HOST"),
+                "PORT": os.environ.get("DB_PORT", "3306"),
+		}
 }
 
 
@@ -135,6 +139,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -142,7 +147,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 있었으면 수정, 없었으면 추가
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 
 ...
 ## 맨 아래

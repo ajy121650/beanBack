@@ -248,8 +248,8 @@ class CafeUploadView(APIView):
     )
     def post(self, request):
         try:
-            # file_path = "data/cafe_opened_data.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
-            file_path = "data/cafe_opened_random.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
+            file_path = "data/cafe_opened_data.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
+            #file_path = "data/cafe_opened_random.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
 
             if not os.path.exists(file_path):
                 return Response({"detail": f"File not found: {file_path}"}, status=status.HTTP_400_BAD_REQUEST)
