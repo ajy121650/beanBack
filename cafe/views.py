@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from .models import Cafe, CafeTagRating
 from .serializers import CafeSerializer
 from tag.models import Tag
-from owner.models import Owner
 
 from .utils.in_memory_faiss import search_with_address_and_keywords_then_embedding
 import traceback
@@ -17,8 +16,6 @@ import traceback
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-import json
-import os
 
 class CafeListView(APIView):
     @swagger_auto_schema(
@@ -232,86 +229,7 @@ class CafeChatView(APIView):
         #직렬화
         serializer = CafeSerializer(cafes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CafeUploadView(APIView):
-    @swagger_auto_schema(
-        operation_id="카페 데이터 업로드",
-        operation_description="카페 데이터를 업로드합니다.",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'file': openapi.Schema(type=openapi.TYPE_FILE)
-            }
-        ),
-        responses={201: "Created", 400: "Bad Request"}
-    )
-    def post(self, request):
-        try:
-            file_path = "data/cafe_opened_data.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
-            #file_path = "data/cafe_opened_random.json"  # 로컬 경로 지정 (프로젝트 기준 상대경로 또는 절대경로 사용)
-
-            if not os.path.exists(file_path):
-                return Response({"detail": f"File not found: {file_path}"}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-            except json.JSONDecodeError:
-                return Response({"detail": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
-
-            created_cafes = []
-
-            for item in data:
-                name = item.get('bplcnm')
-                address = item.get('rdnwhladdr')
-                if not name or not address:
-                    continue  # 필수 필드 없으면 무시
-
-                cafe = Cafe.objects.create(
-                    name=name,
-                    address=address,
-                    description="",
-                    average_rating=0.0,
-                    photo_urls=[]
-                )
-                created_cafes.append(cafe)
-
-            serializer = CafeSerializer(created_cafes, many=True)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({
-                "error": str(e),
-                "trace": traceback.format_exc()
-            }, status=500)
-    
-class CafeImageUpdateView(APIView):
-    @swagger_auto_schema(
-        operation_id="카페 이미지 업데이트",
-        operation_description="모든 카페의 이미지를 업데이트합니다.",
-        responses={200: "Success", 400: "Bad Request"}
-    )
-    def put(self, request):
-        base_path = "/data/cafe_images/"
-        idx = 0
-        imageLen = 132
-
-        cafes = Cafe.objects.all()
-        for cafe in cafes:
-            photo_urls = []
-            for i in range(3):
-                photoIndex = (idx%imageLen) + 1
-                photo_url = f"{base_path}{photoIndex}.jpg"
-                photo_urls.append(photo_url)
-                idx += 1
-
-            #print(f"Saving cafe {cafe.id} with images: {photo_urls}")
-            cafe.photo_urls = photo_urls
-            cafe.save()
-            #print(f"Saved: {cafe.photo_urls}")
-    
-        return Response({"message": "Cafe images updated"}, status=status.HTTP_200_OK)
-
+        
 class CafeViewSet(viewsets.ModelViewSet):
     queryset = Cafe.objects.all().order_by('-created_at')
     serializer_class = CafeSerializer
