@@ -13,7 +13,7 @@ from owner.models import Owner
 from inference_sdk import InferenceHTTPClient
 
 from rest_framework.parsers import MultiPartParser, FormParser
-import json, cv2, tempfile
+import os, tempfile
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -183,9 +183,16 @@ class FloorPlanDetectionView(APIView):
                 temp_image.write(chunk)
             temp_image_path = temp_image.name
 
+        api_key = os.getenv("ROBOFLOW_API_KEY")
+        if not api_key:
+            return Response(
+                {"error": "Server misconfigured: missing ROBOFLOW_API_KEY"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         client = InferenceHTTPClient(
             api_url="https://serverless.roboflow.com",
-            api_key="WMgJWPbuVlyxzmjDsndL"
+            api_key=api_key,
         )
 
         result = client.run_workflow(

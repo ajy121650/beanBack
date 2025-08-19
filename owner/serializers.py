@@ -16,7 +16,7 @@ class UserSerializer(ModelSerializer):
 
 
 class OwnerSerializer(ModelSerializer):
-    user = UserSerializer(read_only=True)
+    owner = UserSerializer(read_only=True)
     class Meta:
         model = Owner
         fields = "__all__"
