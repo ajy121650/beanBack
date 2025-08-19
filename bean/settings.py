@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'review',
     'table',
     'tag',
+    'rest_framework',
+    "corsheaders",
     'rest_framework_simplejwt',  # 🔹 JWT 라이브러리 추가
 ]
 
@@ -67,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware", ##추가
 ]
 
 ROOT_URLCONF = 'bean.urls'
@@ -93,14 +96,10 @@ WSGI_APPLICATION = 'bean.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-		"default": {
-				"ENGINE": "django.db.backends.mysql",
-				"NAME": os.environ.get("DB_NAME"),
-                "USER": os.environ.get("DB_USER"),
-                "PASSWORD": os.environ.get("DB_PASSWORD"),
-                "HOST": os.environ.get("DB_HOST"),
-                "PORT": os.environ.get("DB_PORT", "3306"),
-		}
+		'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -158,6 +157,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',  # 🔹 기본적으로 모든 요청을 허용
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # 🔹 JWT를 인증 방식으로 사용
     )
 }
@@ -176,3 +176,20 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN': 'access_token',  # 🔹 Access Token의 이름 지정
     'REFRESH_TOKEN': 'refresh_token',  # 🔹 Refresh Token의 이름 지정
 }
+
+
+### 아래 전체 추가 ###
+CORS_ALLOWED_ORIGINS= [ # (헤더) Access-Control-Allow-Origin 에 담을 주소들
+  'http://127.0.0.1:3000', 
+  'http://localhost:3000',
+]
+CORS_ALLOW_CREDENTIALS = True # cookie를 주고받으려면 얘를 True로 설정해야 해요.
+
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
