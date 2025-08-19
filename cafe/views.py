@@ -15,7 +15,7 @@ import traceback
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from owner.models import Owner
 
 class CafeListView(APIView):
     @swagger_auto_schema(
@@ -42,19 +42,24 @@ class CafeListView(APIView):
         description = request.data.get("description")
         photo_urls = request.data.get("photo_urls")
         #로그인 해서 owner 정보 추가하는 로직
-        owner = request.owner
-        if not owner.is_authenticated:
+        user = request.user
+        if not user.is_authenticated:
             return Response(
                 {"detail": "please signin"}, status=status.HTTP_401_UNAUTHORIZED
             )
+        try:
+            owner = Owner.objects.get(owner=user)
+        except Owner.DoesNotExist:
+            owner = Owner.objects.create(owner=user)
+        
         if not name:
             return Response(
-                {"detail": "[name] fields missing."},
+                {"detail": "[name] field is missing."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if not not address:
+        if not address:
             return Response(
-                {"detail": "[address] fields missing."},
+                {"detail": "[address] field is missing."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

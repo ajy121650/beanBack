@@ -13,9 +13,10 @@ from owner.models import Owner
 from inference_sdk import InferenceHTTPClient
 
 from rest_framework.parsers import MultiPartParser, FormParser
-import json, cv2, tempfile
+import json, os, tempfile
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+import base64
 
 class FloorPlanListView(APIView):
     @swagger_auto_schema(
@@ -182,41 +183,114 @@ class FloorPlanDetectionView(APIView):
             for chunk in image.chunks():
                 temp_image.write(chunk)
             temp_image_path = temp_image.name
-
+            
+        if not os.path.exists(temp_image_path):
+            print(f"Temporary file not found: {temp_image_path}")
+            raise FileNotFoundError(f"Temporary file not found: {temp_image_path}")
+        
+        api_key = os.getenv("ROBOFLOW_API_KEY")
+        
+        if not api_key:
+            return Response(
+                {"error": "Server misconfigured: missing ROBOFLOW_API_KEY"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            
         client = InferenceHTTPClient(
             api_url="https://serverless.roboflow.com",
-            api_key="WMgJWPbuVlyxzmjDsndL"
+            api_key=api_key,
         )
+            
+        try:
+            with open(temp_image_path, "rb") as image_file:
+                print("before run_workflow")
+                print("Workspace name:", "cho-voxnn")
+                print("Workflow ID:", "detect-count-and-visualize")
+                print("Use cache:", False)
+                
+                # 파일 내용을 Base64로 인코딩
+                image_content = base64.b64encode(image_file.read()).decode('utf-8')
+                print("Image content size (Base64):", len(image_content), "characters")
+                
+                # Base64 데이터를 전달
+                result = client.run_workflow(
+                    workspace_name="cho-voxnn",
+                    workflow_id="detect-count-and-visualize",
+                    images={"image": image_content},
+                    use_cache=False
+                )
+                print("Workflow executed successfully.")
+                print("Result:", result)
+        except Exception as e:
+            print("An error occurred while running the workflow:")
+            print(e)
+            
 
-        result = client.run_workflow(
-            workspace_name="cho-voxnn",
-            workflow_id="detect-count-and-visualize",
-            images={"image": open(temp_image_path, "rb")},
-            use_cache=False
-        )
+        
+        
+        try:
+            print(json.dumps(result, indent=2))
 
-        first = result[0]
-        detections = first["predictions"]["predictions"]
-        width = first["image"]["width"]
-        height = first["image"]["height"]
+            # result 검증
+            if not isinstance(result, list) or len(result) == 0:
+                return Response(
+                    {"error": "Invalid result format or empty result."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        response_data = {
-            "image_size": {
-                "width": width,
-                "height": height
-            },
-            "detections": [
-                {
-                    "class": det["class"],
-                    "confidence": det["confidence"],
-                    "x": det["x"],
-                    "y": det["y"],
-                    "width": det["width"],
-                    "height": det["height"]
-                }
-                for det in detections
-            ]
-        }
+            first = result[0]
 
-        return Response(response_data, status=status.HTTP_200_OK)
+            # 필요한 키 검증
+            if "predictions" not in first or "image" not in first["predictions"]:
+                return Response(
+                    {"error": "Missing required keys in result."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
+            detections = first["predictions"].get("predictions", [])
+            image_data = first["predictions"]["image"]
+
+            if "width" not in image_data or "height" not in image_data:
+                return Response(
+                    {"error": "Missing image dimensions in result."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            width = image_data["width"]
+            height = image_data["height"]
+
+            response_data = {
+                "image_size": {
+                    "width": width,
+                    "height": height
+                },
+                "detections": [
+                    {
+                        "class": det.get("class", "unknown"),
+                        "confidence": det.get("confidence", 0),
+                        "x": det.get("x", 0),
+                        "y": det.get("y", 0),
+                        "width": det.get("width", 0),
+                        "height": det.get("height", 0)
+                    }
+                    for det in detections
+                ]
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except KeyError as e:
+            return Response(
+                {"error": f"KeyError: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except IndexError as e:
+            return Response(
+                {"error": f"IndexError: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An unexpected error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

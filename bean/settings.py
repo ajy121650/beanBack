@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,7 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 # 환경변수 불러오기
 SECRET_KEY = os.getenv("SECRET_KEY")  # ✅ dotenv 방식
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ### 여기까지 추가
@@ -59,6 +61,8 @@ INSTALLED_APPS = [
     'rest_framework',
     "corsheaders",
     'rest_framework_simplejwt',  # 🔹 JWT 라이브러리 추가
+    'rest_framework_simplejwt.token_blacklist',
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -69,8 +73,27 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware", ##추가
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+CORS_ALLOWED_ORIGINS= [ # (헤더) Access-Control-Allow-Origin 에 담을 주소들
+    'http://127.0.0.1:3000', 
+    'http://localhost:3000',
+]
+CORS_ALLOW_CREDENTIALS = True # cookie를 주고받으려면 얘를 True로 설정해야 해요.
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
 
 ROOT_URLCONF = 'bean.urls'
 
@@ -81,6 +104,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                "django.template.context_processors.debug",
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -97,9 +121,9 @@ WSGI_APPLICATION = 'bean.wsgi.application'
 
 DATABASES = {
 		'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
 }
 
 
@@ -127,11 +151,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -147,22 +171,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 있었으면 수정, 없었으면 추가
 
-
-...
 ## 맨 아래
 ## AllowAny 뒤에 컴마 주의!!!!!!!!!!!!!
 ## 웬만하면 복붙 ㄱㄱ
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',  # 🔹 기본적으로 모든 요청을 허용
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "owner.auth.CookieJWTAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # 🔹 JWT를 인증 방식으로 사용
-    )
-}
 
-from datetime import timedelta
+}
+REST_USE_JWT = True
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,  # ★ 로그인 요구 비활성화
+    'SECURITY_DEFINITIONS': {
+        'Bearer': { 'type': 'apiKey', 'name': 'Authorization', 'in': 'header' }
+    },
+}
 
 REST_USE_JWT = True  # 🔹 Django에서 JWT 사용을 활성화
 
