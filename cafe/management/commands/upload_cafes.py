@@ -113,8 +113,8 @@ class Command(BaseCommand):
                 # 빠른 대량 삽입: 이미 존재하면 에러날 수 있으므로 unique 제약이 있다면 ignore_conflicts=True 고려
                 objs = [
                     Cafe(
-                        name=row.get("bplcnm"),
-                        address=row.get("rdnwhladdr"),
+                        name=row.get("name"),
+                        address=row.get("address"),
                         description="",
                         average_rating=0.0,
                         photo_urls=[]
