@@ -2,7 +2,6 @@ from django.shortcuts import render
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
