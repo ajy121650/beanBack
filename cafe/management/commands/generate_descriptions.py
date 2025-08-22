@@ -12,7 +12,7 @@ def get_review_keywords_with_retry(text, retries=3):
         try:
             return review_description(text)
         except RateLimitError:
-            wait = 60  # 60s
+            wait = 60
             print(f"RateLimitError, retry in {wait}s…")
             time.sleep(wait)
     raise RuntimeError("GPT 호출 재시도 모두 실패")

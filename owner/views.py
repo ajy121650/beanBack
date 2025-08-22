@@ -24,7 +24,7 @@ from rest_framework_simplejwt.tokens import RefreshToken #추가
 import logging
 logger = logging.getLogger(__name__)
 
-
+# JWT 토큰을 발급하고 쿠키에 저장하는 함수
 def set_token_on_response_cookie(user, status_code):
     token = RefreshToken.for_user(user)
     owner = Owner.objects.get(owner=user)
@@ -34,6 +34,7 @@ def set_token_on_response_cookie(user, status_code):
     res.set_cookie("access_token", value=str(token.access_token), httponly=True)
     return res
 
+# 회원가입 뷰
 class SignUpView(APIView):
     @swagger_auto_schema(
         operation_id="회원가입",
@@ -53,7 +54,8 @@ class SignUpView(APIView):
         except Exception as e:
             logger.error(f"SignUpView error: {e}", exc_info=True)
             return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+# 로그인 뷰
 class SignInView(APIView):
     @swagger_auto_schema(
         operation_id="로그인",
@@ -80,6 +82,7 @@ class SignInView(APIView):
                 {"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND
             )
 
+# 토큰 재발급 뷰
 class TokenRefreshView(APIView):
     @swagger_auto_schema(
         operation_id="토큰 재발급",
@@ -105,7 +108,7 @@ class TokenRefreshView(APIView):
         response.set_cookie("access_token", value=str(new_access_token), httponly=True, samesite='Strict')
         return response
 
-
+# 로그아웃 뷰
 class SignOutView(APIView):
     @swagger_auto_schema(
         operation_id="로그아웃",
@@ -126,6 +129,7 @@ class SignOutView(APIView):
         res.delete_cookie("refresh_token")
         return res
 
+# 사용자 정보 조회 뷰
 class UserInfoView(APIView):
     @swagger_auto_schema(
         operation_id="사용자 정보 조회",
@@ -146,7 +150,7 @@ class UserInfoView(APIView):
         serializer = OwnerSerializer(owner)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+# 오너의 카페 리스트 조회 뷰
 class OwnerDetailCafeListView(APIView):
     @swagger_auto_schema(
         operation_id="오너의 카페 리스트 조회",

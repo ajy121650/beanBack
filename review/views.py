@@ -10,6 +10,7 @@ from review.serializers import ReviewSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+# 리뷰 전체 목록 조회 API
 class ReviewListView(APIView):
     @swagger_auto_schema(
         operation_id='리뷰 목록 조회',
@@ -20,7 +21,8 @@ class ReviewListView(APIView):
         reviews = Review.objects.all()
         serializer = ReviewSerializer(instance=reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+# 리뷰 상세 조회 API
 class ReviewDetailView(APIView):
     @swagger_auto_schema(
         operation_id='카페별 리뷰 목록 조회',

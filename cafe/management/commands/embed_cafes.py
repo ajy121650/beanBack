@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from cafe.models import Cafe
 from django.conf import settings
-
 import openai
 import numpy as np
 import concurrent.futures
@@ -39,7 +38,6 @@ def process_cafe(cafe):
     except Exception as e:
         print(f"[ERROR] Cafe {cafe.id}: {e}")
     finally:
-        # 작업 후 커넥션 닫기
         close_old_connections()
 
 class Command(BaseCommand):
@@ -49,12 +47,9 @@ class Command(BaseCommand):
         cafes = list(Cafe.objects.exclude(description=""))
         total = len(cafes)
         print(f"[INFO] 벡터화할 카페 수: {total}")
-
-        # 최대 10개 스레드로 동시에 처리
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(process_cafe, cafe): cafe.id for cafe in cafes}
             for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
-                # 진행률 출력 (선택)
                 print(f"[PROGRESS] {i}/{total} 완료")
 
         print("[DONE] 모든 카페 임베딩 저장 완료.")

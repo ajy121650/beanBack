@@ -1,19 +1,15 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .models import Tag
 from .serializers import TagSerializer
-
 from cafe.models import Cafe, CafeTagRating
 from cafe.serializers import CafeTagRatingSerializer, CafeTagRatingCreateSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-
+# 태그 전체 목록 조회, 생성 API
 class TagListView(APIView):
   @swagger_auto_schema(
     operation_id='태그 목록 조회',
@@ -44,7 +40,7 @@ class TagListView(APIView):
     serializer = TagSerializer(instance = tag)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
+# 카페와 태그에 따른 별점 조회, 생성 API
 class CafeTagRatingView(APIView):
   
   @swagger_auto_schema(
@@ -71,21 +67,19 @@ class CafeTagRatingView(APIView):
   def post(self, request):
     serializer = CafeTagRatingCreateSerializer(data=request.data)
     if serializer.is_valid():
-        # Check if Cafe and Tag exist
         cafe_id = serializer.validated_data['cafe'].id
         tag_id = serializer.validated_data['tag'].id
         if not Cafe.objects.filter(id=cafe_id).exists():
             return Response({"detail": "Cafe not found."}, status=status.HTTP_400_BAD_REQUEST)
         if not Tag.objects.filter(id=tag_id).exists():
             return Response({"detail": "Tag not found."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Save and respond
         rating_instance = serializer.save()
         full_serializer = CafeTagRatingSerializer(rating_instance)
         return Response(full_serializer.data, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# 카페와 태그에 따른 별점 상세 조회, 수정, 삭제 API
 class CafeTagRatingDetailView(APIView):
   @swagger_auto_schema(
       operation_id='별점 상세 조회',

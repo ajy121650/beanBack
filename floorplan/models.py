@@ -1,7 +1,7 @@
 from django.db import models
 from cafe.models import Cafe
-# Create your models here.
 
+# 카페 도면 모델
 class FloorPlan(models.Model):
     width = models.FloatField(default=0)
     height = models.FloatField(default=0.0)

@@ -8,9 +8,6 @@ import time
 from openai import RateLimitError
 
 def flatten_once(nested):
-    """
-    1단계 중첩 리스트를 평면화합니다.
-    """
     flat = []
     for item in nested:
         if isinstance(item, list):

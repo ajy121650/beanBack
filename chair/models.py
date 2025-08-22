@@ -1,8 +1,8 @@
 from django.db import models
 from floorplan.models import FloorPlan
 from django.utils import timezone
-# Create your models here.
 
+# 카페 도면 의자 모델
 class Chair(models.Model):
     width = models.FloatField(default=0.0)
     height = models.FloatField(default=0.0)
