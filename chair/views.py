@@ -12,10 +12,15 @@ from .serializers import ChairSerializer, ChairRequestSerializer
 
 
 class ChairListView(APIView):
+    @swagger_auto_schema(
+        operation_id="의자 목록 조회",
+        operation_description="모든 의자의 목록을 조회합니다.",
+        responses={200: ChairSerializer(many=True)}
+    )
     def get(self, request):
-        #TODO 일단 미개발 필요없을 가능성 농후
-        # pass 키워드 지우고 구현하기
-        pass
+        chairs = Chair.objects.all()
+        serializer = ChairSerializer(chairs, many=True)
+        return Response(serializer.data)
 
     @swagger_auto_schema(
         operation_id="의자 생성",
@@ -32,10 +37,27 @@ class ChairListView(APIView):
     
 
 class ChairDetailView(APIView):
+    @swagger_auto_schema(
+        operation_id="의자 정보 조회",
+        operation_description="chair_id에 해당하는 의자 정보를 조회합니다.",
+        responses={200: ChairSerializer, 404: "Not found"},
+        manual_parameters=[
+            openapi.Parameter(
+                'chair_id',
+                openapi.IN_PATH,
+                description="의자 ID",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ]
+    )
     def get(self, request, chair_id):
-        #TODO 일단 미개발 필요없을 가능성 농후
-        # pass 키워드 지우고 구현하기
-        pass
+        try:
+            chair = Chair.objects.get(pk=chair_id)
+            serializer = ChairSerializer(chair)
+            return Response(serializer.data)
+        except Chair.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
         operation_id="의자 정보 수정",
