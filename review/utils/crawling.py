@@ -51,14 +51,14 @@ def get_reviews_by_cafe_name(cafe_name: str) -> list[str]:
     # iframe 목록 탐색
     try:
         # 우선 entryIframe이 나타나는지 먼저 3~5초 정도 기다림
-        WebDriverWait(driver, 5).until(
+        WebDriverWait(driver, 7).until(
             EC.frame_to_be_available_and_switch_to_it((By.ID, "entryIframe"))
         )
         print("[+] entryIframe 진입 완료 (상세 페이지)")
     except:
         try:
             # entryIframe이 없으면 그제서야 searchIframe 진입 시도
-            WebDriverWait(driver, 5).until(
+            WebDriverWait(driver, 7).until(
                 EC.frame_to_be_available_and_switch_to_it((By.ID, "searchIframe"))
             )
             print("[+] searchIframe 진입 완료 (검색 결과 목록)")
