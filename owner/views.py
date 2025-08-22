@@ -139,9 +139,12 @@ class UserInfoView(APIView):
         if not request.user.is_authenticated:
             return Response({"detail": "로그인 후 다시 시도해주세요."}, status=status.HTTP_401_UNAUTHORIZED)
         user = request.user
-        serializer = UserIdUsernameSerializer(user)
+        try:
+            owner = Owner.objects.get(owner=user)
+        except Owner.DoesNotExist:
+            return Response({"detail": "Owner 정보가 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = OwnerSerializer(owner)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
 
 
 class OwnerDetailCafeListView(APIView):
