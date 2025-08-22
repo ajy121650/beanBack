@@ -81,6 +81,22 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+### 아래 전체 추가 ###
+CORS_ALLOWED_ORIGINS= [ # (헤더) Access-Control-Allow-Origin 에 담을 주소들
+  'http://127.0.0.1:3000', 
+  'http://localhost:3000',
+]
+CORS_ALLOW_CREDENTIALS = True # cookie를 주고받으려면 얘를 True로 설정해야 해요.
+
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
+
 ROOT_URLCONF = 'bean.urls'
 
 TEMPLATES = [
@@ -192,18 +208,3 @@ SIMPLE_JWT = {
 }
 
 
-### 아래 전체 추가 ###
-CORS_ALLOWED_ORIGINS= [ # (헤더) Access-Control-Allow-Origin 에 담을 주소들
-  'http://127.0.0.1:3000', 
-  'http://localhost:3000',
-]
-CORS_ALLOW_CREDENTIALS = True # cookie를 주고받으려면 얘를 True로 설정해야 해요.
-
-CORS_ALLOW_HEADERS = (
-    "accept",
-    "authorization",
-    "content-type",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-)

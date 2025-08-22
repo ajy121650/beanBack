@@ -10,7 +10,7 @@ from owner.models import Owner
 
 from inference_sdk import InferenceHTTPClient
 
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 import json, os, tempfile
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -154,7 +154,7 @@ class FloorPlanCafeView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class FloorPlanDetectionView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     @swagger_auto_schema(
         operation_id="도면 객체 탐지",
