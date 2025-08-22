@@ -149,6 +149,10 @@ def search_with_address_and_keywords_then_embedding(query: str, top_k: int = 15)
         # 지역 토큰이 있는데 후보가 없으면 전체로 fallback
         candidate_cafes = list(base_qs)
 
+    if len(candidate_cafes) <= 50:
+        # 후보가 50개 이하이면 전체로 fallback
+        candidate_cafes = list(base_qs)
+
     #print(f"후보카페 이름: {[c.name for c in candidate_cafes]}  ({len(candidate_cafes)}개)\n\n")
     
     # 3) 키워드로 후보군 추출

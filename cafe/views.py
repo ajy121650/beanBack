@@ -76,9 +76,9 @@ class CafeListView(APIView):
                 name=name,
                 address=address,
                 description=description,
-                has_wifi=True,
                 average_rating=0.0,
                 photo_urls=photo_urls,
+                owner=owner, 
             )
 
         if tag_contents is not None:

@@ -19,4 +19,4 @@ class OwnerSerializer(ModelSerializer):
     owner = UserSerializer(read_only=True)
     class Meta:
         model = Owner
-        fields = ["id"]
+        fields = ["id", "owner"]

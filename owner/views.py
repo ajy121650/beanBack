@@ -21,6 +21,10 @@ from .request_serializers import (
 )
 from rest_framework_simplejwt.tokens import RefreshToken #추가
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 def set_token_on_response_cookie(user, status_code):
     token = RefreshToken.for_user(user)
     owner = Owner.objects.get(owner=user)
@@ -38,14 +42,17 @@ class SignUpView(APIView):
         responses={201: "JWT Token 발급", 400: "Bad Request"},
     )
     def post(self, request):
-        user_serializer = UserSerializer(data=request.data)
-        if user_serializer.is_valid(raise_exception=True):
-            user = user_serializer.save()
-            user.set_password(user.password)
-            user.save()
-            
-        Owner.objects.create( owner=user )
-        return set_token_on_response_cookie(user, status_code=status.HTTP_201_CREATED)
+        try:
+            user_serializer = UserSerializer(data=request.data)
+            if user_serializer.is_valid(raise_exception=True):
+                user = user_serializer.save()
+                user.set_password(user.password)
+                user.save()
+            Owner.objects.create(owner=user)
+            return set_token_on_response_cookie(user, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"SignUpView error: {e}", exc_info=True)
+            return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class SignInView(APIView):
     @swagger_auto_schema(
