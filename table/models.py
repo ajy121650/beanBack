@@ -1,7 +1,7 @@
 from django.db import models
 from floorplan.models import FloorPlan
-# Create your models here.
 
+# 테이블 정보 모델
 class Table(models.Model):
     width = models.FloatField(default=0.0)
     height = models.FloatField(default=0.0)

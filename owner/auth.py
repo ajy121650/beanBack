@@ -9,6 +9,5 @@ class CookieJWTAuthentication(JWTAuthentication):
         try:
             validated = self.get_validated_token(raw)
         except Exception:
-            # ❗️만료/깨진 토큰이면 401 던지지 말고 조용히 패스
             return None
         return self.get_user(validated), validated

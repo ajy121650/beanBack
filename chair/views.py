@@ -1,15 +1,13 @@
 from django.shortcuts import render
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-
 from .models import Chair, FloorPlan
 from .serializers import ChairSerializer, ChairRequestSerializer
 
-
+# 카페 도면 의자 목록 전체 조회 및 생성 API 
 class ChairListView(APIView):
     @swagger_auto_schema(
         operation_id="의자 목록 조회",
@@ -35,6 +33,7 @@ class ChairListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+# 카페 도면 의자 개별 상세 조회, 수정, 삭제 API
 class ChairDetailView(APIView):
     @swagger_auto_schema(
         operation_id="의자 정보 조회",

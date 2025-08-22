@@ -8,6 +8,7 @@ from .serializers import TableSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+# 테이블 전체 목록 조회, 생성 API
 class TableListView(APIView):
     @swagger_auto_schema(
         operation_id="테이블 목록 조회",
@@ -33,7 +34,7 @@ class TableListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-
+# 테이블 개별 상세 조회, 수정 API
 class TableDetailView(APIView):
     @swagger_auto_schema(
         operation_id="테이블 상세 조회",
