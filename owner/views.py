@@ -26,8 +26,8 @@ def set_token_on_response_cookie(user, status_code):
     owner = Owner.objects.get(owner=user)
     serialized_data = OwnerSerializer(owner).data
     res = Response(serialized_data, status=status_code)
-    res.set_cookie("refresh_token", value=str(token), httponly=True, samesite='Strict')
-    res.set_cookie("access_token", value=str(token.access_token), httponly=True, samesite='Strict')
+    res.set_cookie("refresh_token", value=str(token), httponly=True)
+    res.set_cookie("access_token", value=str(token.access_token), httponly=True)
     return res
 
 class SignUpView(APIView):
