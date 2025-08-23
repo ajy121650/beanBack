@@ -20,6 +20,7 @@ from .request_serializers import (
     TokenRefreshRequestSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken #추가
+from rest_framework import status, serializers
 
 import logging
 logger = logging.getLogger(__name__)
@@ -51,6 +52,10 @@ class SignUpView(APIView):
                 user.save()
             Owner.objects.create(owner=user)
             return set_token_on_response_cookie(user, status_code=status.HTTP_201_CREATED)
+        except serializers.ValidationError as ve:
+            # 검증 오류는 400으로 그대로 반환
+            return Response(ve.detail, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             logger.error(f"SignUpView error: {e}", exc_info=True)
             return Response({"detail": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
