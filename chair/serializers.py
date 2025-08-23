@@ -11,4 +11,4 @@ class ChairSerializer(ModelSerializer):
 class ChairRequestSerializer(ModelSerializer):
     class Meta:
         model = Chair
-        fields = ['width', 'height', 'x_position', 'y_position', 'socket', 'window', 'occupied', 'floor_plan']
+        fields = ['width', 'height', 'x_position', 'y_position', 'socket', 'window', 'occupied', 'floor_plan', 'entry_time']

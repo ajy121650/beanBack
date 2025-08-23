@@ -219,6 +219,10 @@ class CafeChatView(APIView):
                 )
 
             cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
+
+            if question == "test":
+                cafes = Cafe.objects.filter(id__gte=14701)  # 시연용
+
         except Exception as e:
             traceback.print_exc()        
             return Response(
