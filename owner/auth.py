@@ -1,5 +1,6 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+# Django REST Framework에서 JWT 토큰을 쿠키(access_token) 또는 Authorization 헤더에서 읽어 인증하는 커스텀 인증 클래스
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         header = self.get_header(request)
