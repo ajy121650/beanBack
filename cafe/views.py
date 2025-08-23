@@ -224,6 +224,10 @@ class CafeChatView(APIView):
 
             # FAISS + RAG 검색
             cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
+
+            if question == "test":
+                cafes = Cafe.objects.filter(id__gte=14701)  # 시연용
+
         except Exception as e:
             traceback.print_exc()         # 터미널에 전체 에러 스택 출력
             return Response(

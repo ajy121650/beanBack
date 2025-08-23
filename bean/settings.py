@@ -194,8 +194,6 @@ SWAGGER_SETTINGS = {
     },
 }
 
-REST_USE_JWT = True  # 🔹 Django에서 JWT 사용을 활성화
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 🔹 Access Token의 유효 기간: 30분
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # 🔹 Refresh Token의 유효 기간: 1일
