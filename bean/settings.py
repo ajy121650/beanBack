@@ -141,11 +141,6 @@ SWAGGER_SETTINGS = {
     },
 }
 
-<<<<<<< HEAD
-=======
-REST_USE_JWT = True 
-
->>>>>>> f187770e2c47d57dc82d644eb0b2f2756f4993e6
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
