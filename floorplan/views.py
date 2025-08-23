@@ -218,7 +218,7 @@ class FloorPlanDetectionView(APIView):
                 # Base64 데이터를 전달
                 result = client.run_workflow(
                     workspace_name="cho-voxnn",
-                    workflow_id="detect-count-and-visualize",
+                    workflow_id="detect-count-and-visualize-2",
                     images={"image": image_content},
                     use_cache=False
                 )
