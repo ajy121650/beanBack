@@ -1,22 +1,18 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import viewsets
-
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .models import Cafe, CafeTagRating
 from .serializers import CafeSerializer
 from tag.models import Tag
-
 from .utils.in_memory_faiss import search_with_address_and_keywords_then_embedding
 import traceback
-
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from owner.models import Owner
 
+# 전체 카페 목록 조회 및 카페 생성 API
 class CafeListView(APIView):
     @swagger_auto_schema(
         operation_id="카페 목록 조회",
@@ -41,7 +37,6 @@ class CafeListView(APIView):
         address = request.data.get("address")
         description = request.data.get("description")
         photo_urls = request.data.get("photo_urls")
-        #로그인 해서 owner 정보 추가하는 로직
         user = request.user
         if not user.is_authenticated:
             return Response(
@@ -97,6 +92,7 @@ class CafeListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+# 개별 카페 상세 조회, 수정, 삭제 API
 class CafeDetailView(APIView):
     @swagger_auto_schema(
         operation_id="카페 상세 조회",
@@ -191,7 +187,6 @@ class CafeDetailView(APIView):
         if pos_connected:
             cafe.pos_connected = pos_connected
 
-        #tag_contents = request.data.get("tags") 일단 태그 데이터는 여기서 수정 X
         keyword_contents = request.data.get("keywords")
 
         
@@ -207,6 +202,7 @@ class CafeDetailView(APIView):
         serializer = CafeSerializer(instance=cafe)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+# 챗봇 검색 API
 class CafeChatView(APIView):
     @swagger_auto_schema(
         operation_id="카페 질문하기",
@@ -222,20 +218,17 @@ class CafeChatView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # FAISS + RAG 검색
             cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
 
             if question == "test":
                 cafes = Cafe.objects.filter(id__gte=14701)  # 시연용
 
         except Exception as e:
-            traceback.print_exc()         # 터미널에 전체 에러 스택 출력
+            traceback.print_exc()        
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        #직렬화
         serializer = CafeSerializer(cafes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         

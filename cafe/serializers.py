@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Cafe, CafeTagRating
 from tag.serializers import TagSerializer
 
+# 카페 정보 시리얼라이저
 class CafeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     keywords = TagSerializer(many=True, read_only=True)
@@ -9,7 +10,7 @@ class CafeSerializer(serializers.ModelSerializer):
         model = Cafe
         fields = '__all__'
 
-# read_only
+# 카페의 태그별 별점 정보 시리얼라이저 - 읽기 전용
 class CafeTagRatingSerializer(serializers.ModelSerializer):
     cafe = CafeSerializer(read_only=True)
     tag = TagSerializer(read_only=True)
@@ -17,9 +18,9 @@ class CafeTagRatingSerializer(serializers.ModelSerializer):
         model = CafeTagRating
         fields = ['id', 'cafe', 'tag', 'rating']
 
-# write_only
+# 카페의 태그별 별점 정보 시리얼라이저 - 쓰기(생성/수정) 전용
 class CafeTagRatingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CafeTagRating
         fields = ['cafe', 'tag', 'rating']
-        
+

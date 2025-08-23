@@ -1,5 +1,5 @@
 from django.db import models
 
-# Create your models here.
+# 태그 모델
 class Tag(models.Model):
     content = models.TextField()

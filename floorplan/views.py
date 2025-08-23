@@ -3,23 +3,22 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .models import FloorPlan
-
 from cafe.models import Cafe
 from .serializers import FloorPlanSerializer, FloorPlanDetectionSerializer, FloorPlanRequestSerializer
 from owner.models import Owner
-
 from inference_sdk import InferenceHTTPClient
-
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 import json, os, tempfile
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import base64
 
+
+# 도면 전체 목록 조회 및 생성 API
 class FloorPlanListView(APIView):
     @swagger_auto_schema(
-        operation_id="층별도 목록 조회",
-        operation_description="모든 층별도의 목록을 반환합니다.",
+        operation_id="도면 목록 조회",
+        operation_description="모든 도면의 목록을 반환합니다.",
         responses={200: FloorPlanSerializer(many=True)}
     )
     def get(self, request):
@@ -28,8 +27,8 @@ class FloorPlanListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_id="층별도 생성",
-        operation_description="새로운 층별도를 생성합니다.",
+        operation_id="도면 생성",
+        operation_description="새로운 도면을 생성합니다.",
         request_body=FloorPlanRequestSerializer,
         responses={201: FloorPlanSerializer, 400: "Bad Request"}
     )
@@ -51,6 +50,7 @@ class FloorPlanListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+# 도면 개별 상세 조회, 수정, 삭제 API
 class FloorPlanDetailView(APIView):
     @swagger_auto_schema(
         operation_id="도면 상세 조회",
@@ -102,6 +102,7 @@ class FloorPlanDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+# 점주별 도면 조회 API
 class FloorPlanOwnerView(APIView):
     @swagger_auto_schema(
         operation_id="소유자별 도면 조회",
@@ -128,6 +129,8 @@ class FloorPlanOwnerView(APIView):
         serializer = FloorPlanSerializer(floor_plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+# 카페별 도면 조회 API
 class FloorPlanCafeView(APIView):
     @swagger_auto_schema(
         operation_id="카페별 도면 조회",
@@ -153,12 +156,14 @@ class FloorPlanCafeView(APIView):
         serializer = FloorPlanSerializer(floor_plans, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+# 도면 요소 탐지 API 클래스
 class FloorPlanDetectionView(APIView):
     parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     @swagger_auto_schema(
-        operation_id="도면 객체 탐지",
-        operation_description="이미지 URL을 통해 도면에서 객체를 탐지합니다.",
+        operation_id="도면 요소 탐지",
+        operation_description="이미지 URL을 통해 도면에서 요소를 탐지합니다.",
         manual_parameters=[
             openapi.Parameter(
                 'image_url',

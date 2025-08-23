@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from cafe.models import Cafe
 from tag.models import Tag
 
-# Create your models here.
+# 리뷰 정보 모델
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     cafe = models.ForeignKey(Cafe, on_delete=models.CASCADE)
