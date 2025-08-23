@@ -217,11 +217,10 @@ class CafeChatView(APIView):
                     {"error": "question 쿼리스트링을 넣어주세요."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
-            cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
-
             if question == "test":
-                cafes = Cafe.objects.filter(id__gte=14701)  # 시연용
+                cafes = Cafe.objects.filter(id__gte=14701) #시연용
+            else:
+                cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
 
         except Exception as e:
             traceback.print_exc()        
