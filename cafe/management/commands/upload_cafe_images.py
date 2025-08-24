@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from cafe.models import Cafe
 
-# 카페 이미지 업데이트 함수
+# 카페 이미지 업데이트 커맨드
 class Command(BaseCommand):
     help = "모든 카페의 이미지를 일괄 업데이트합니다. (라운드로빈)"
 
