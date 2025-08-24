@@ -20,19 +20,19 @@ _index = None
 _ids = None
 _lock = threading.Lock()  # 멀티 쓰레드 안전
 
+#임베딩 벡터 정규화 함수
 def l2_normalize(vectors):
     norms = np.linalg.norm(vectors, axis=1, keepdims=True)
     return vectors / norms
 
+# 임베딩 생성 함수
 def get_embedding(text: str, model: str = "text-embedding-3-small") -> list[float]:
     text = text.replace("\n", " ")
     response = openai.embeddings.create(input=[text], model=model)
     return response.data[0].embedding
 
+#중첨 리스트 평면화 함수
 def flatten_once(nested):
-    """
-    1단계 중첩 리스트를 평면화합니다.
-    """
     flat = []
     for item in nested:
         if isinstance(item, list):
@@ -41,10 +41,8 @@ def flatten_once(nested):
             flat.append(item)
     return flat
 
+#FAISS index 생성 함수
 def build_index():
-    """
-    한 번만 호출되어 FAISS 인덱스를 메모리에 생성합니다.
-    """
     global _index, _ids
 
     with _lock:
@@ -89,6 +87,7 @@ def build_temp_index_from_cafes(cafes: List[Cafe]) -> Tuple[faiss.Index, List[in
     ids = [c.id for c in cafes_with_vec]
     return index, ids
 
+#키워드 기반 카페 필터링 함수
 def filter_cafes_by_keywords_simple(query_text: str, candidate_cafes: List[Cafe]) -> List[Cafe]:
     # 1) 키워드 추출
     kws = flatten_once(query_keyword(query_text))  # ["카공","조용함",...]
@@ -120,6 +119,7 @@ def filter_cafes_by_keywords_simple(query_text: str, candidate_cafes: List[Cafe]
     #print(f"필터링된 카페: {[c.name for c in qs]}  ({len(qs)}개)\n")
     return list(qs)
 
+#주소 필터링 이후 키워드 기반 카페 검색 함수
 def search_with_address_and_keywords_then_embedding(query: str, top_k: int = 15):
     """
     1) 쿼리에서 지역 토큰 추출
@@ -180,7 +180,7 @@ def search_with_address_and_keywords_then_embedding(query: str, top_k: int = 15)
     cafes.sort(key=lambda c: id2dist[c.id], reverse=True)  # IP(=cosine) 점수는 높을수록 좋음
     return cafes
 
-# fallback 검색
+# fallback 검색(임베딩 기반 RAG search 함수)
 def search_similar_cafes(query: str, top_k: int = 15):
     """
     메모리 인덱스를 사용해 즉시 검색 결과를 리턴합니다.

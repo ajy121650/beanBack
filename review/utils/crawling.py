@@ -9,6 +9,7 @@ from selenium.common.exceptions import TimeoutException, ElementClickIntercepted
 from datetime import datetime
 import time
 
+# 네이버 지도에 카페 이름 검색해서 리뷰들 크롤링 해오는 함수(최대 60개)
 def get_reviews_by_cafe_name(cafe_name: str) -> list[str]:
     """
     - 네이버 지도에서 cafe_name을 검색

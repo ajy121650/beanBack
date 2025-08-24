@@ -10,7 +10,7 @@ from cafe.models import Cafe
 from review.models import Review
 from review.utils.crawling import get_reviews_by_cafe_name
 
-
+# 모든 카페에 대해 리뷰를 크롤링하여 저장하는 커맨드
 class Command(BaseCommand):
     help = "모든 카페에 대해 리뷰를 크롤링하여 저장합니다."
 
