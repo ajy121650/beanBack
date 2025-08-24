@@ -51,12 +51,11 @@ MIDDLEWARE = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://api.beanzari.co.kr",
+    "https://beanzari.co.kr",
 ]
 
-CORS_ALLOWED_ORIGINS= [ 
-  'http://127.0.0.1:3000', 
-  'http://localhost:3000',
-]
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True 
 
 CORS_ALLOW_HEADERS = (
@@ -89,14 +88,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bean.wsgi.application'
 
 DATABASES = {
-		 "default": {
-                "ENGINE": "django.db.backends.mysql",
-                "NAME": os.environ.get("DB_NAME"),
-                "USER": os.environ.get("DB_USER"),
-                "PASSWORD": os.environ.get("DB_PASSWORD"),
-                "HOST": os.environ.get("DB_HOST"),
-                "PORT": int(os.environ.get("DB_PORT", "3306")),
-            }
+		"default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ.get("DB_NAME"),
+            "USER": os.environ.get("DB_USER"),
+            "PASSWORD": os.environ.get("DB_PASSWORD"),
+            "HOST": os.environ.get("DB_HOST"),
+            "PORT": int(os.environ.get("DB_PORT", "3306")),
+        }
 }
 
 AUTH_PASSWORD_VALIDATORS = [

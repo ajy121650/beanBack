@@ -87,6 +87,7 @@ def build_temp_index_from_cafes(cafes: List[Cafe]) -> Tuple[faiss.Index, List[in
     ids = [c.id for c in cafes_with_vec]
     return index, ids
 
+"""
 #키워드 기반 카페 필터링 함수
 def filter_cafes_by_keywords_simple(query_text: str, candidate_cafes: List[Cafe]) -> List[Cafe]:
     # 1) 키워드 추출
@@ -118,6 +119,8 @@ def filter_cafes_by_keywords_simple(query_text: str, candidate_cafes: List[Cafe]
     
     #print(f"필터링된 카페: {[c.name for c in qs]}  ({len(qs)}개)\n")
     return list(qs)
+
+"""
 
 #주소 필터링 이후 키워드 기반 카페 검색 함수
 def search_with_address_and_keywords_then_embedding(query: str, top_k: int = 15):
@@ -156,7 +159,7 @@ def search_with_address_and_keywords_then_embedding(query: str, top_k: int = 15)
     #print(f"후보카페 이름: {[c.name for c in candidate_cafes]}  ({len(candidate_cafes)}개)\n\n")
     
     # 3) 키워드로 후보군 추출
-    candidate_cafes = filter_cafes_by_keywords_simple(query, candidate_cafes)
+    # candidate_cafes = filter_cafes_by_keywords_simple(query, candidate_cafes)
 
     # 4) 임시 인덱스 생성 시도
     tmp_index, tmp_ids = build_temp_index_from_cafes(candidate_cafes)
