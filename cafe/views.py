@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .models import Cafe, CafeTagRating
 from .serializers import CafeSerializer
 from tag.models import Tag
-from .utils.in_memory_faiss import search_with_address_and_keywords_then_embedding
+from .utils.in_memory_faiss import search_embed_then_address_filter
 import traceback
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -229,7 +229,7 @@ class CafeChatView(APIView):
             if question == "test":
                 cafes = Cafe.objects.filter(id__gte=14701) #시연용
             else:
-                cafes = search_with_address_and_keywords_then_embedding(question, top_k=15)
+                cafes = search_embed_then_address_filter(question, top_k=15, pool_k=1000)
 
         except Exception as e:
             traceback.print_exc()        

@@ -183,6 +183,65 @@ def search_with_address_and_keywords_then_embedding(query: str, top_k: int = 15)
     cafes.sort(key=lambda c: id2dist[c.id], reverse=True)  # IP(=cosine) 점수는 높을수록 좋음
     return cafes
 
+#전역 임베딩 검색 후 주소 필터링 함수
+def search_embed_then_address_filter(query: str, top_k: int = 15, pool_k: int = 1000):
+    """
+    1) 전역 FAISS에서 pool_k 만큼 먼저 검색
+    2) 상위 후보들만 주소 토큰(관악구 등)으로 하드 필터
+    3) 원래 FAISS 점수 순서를 유지한 채 상위 top_k 반환
+    """
+    # --- 1) 전역 인덱스 검색 ---
+    index, ids = build_index()  # 전역 인덱스 & id 리스트 (이미 정규화된 벡터 add했음을 전제)
+    qv = np.array(get_embedding(query), dtype="float32").reshape(1, -1)
+    qv = l2_normalize(qv)
+
+    k = min(pool_k, len(ids))
+    D, I = index.search(qv, k)
+    # FAISS 점수 내림차순(큰 값이 유사)
+    faiss_ranked_ids: List[int] = [ids[i] for i in I[0]]
+    id2score = {ids[i]: D[0][j] for j, i in enumerate(I[0])}
+
+    # --- 2) 주소 토큰 하드 필터 ---
+    area_tokens = extract_area_tokens(query)
+    qs = Cafe.objects.filter(id__in=faiss_ranked_ids)
+    if area_tokens:
+        q_addr = Q()
+        for tok in area_tokens:
+            q_addr |= Q(address__icontains=tok)
+        qs = qs.filter(q_addr)
+
+    filtered_ids = list(qs.values_list("id", flat=True))
+
+    # --- 3) FAISS 순서 유지 + 상위 top_k ---
+    # (Case/When으로 DB 정렬 or 파이썬에서 정렬)
+    # 파이썬 정렬(메모리 내)로 간단하게:
+    filtered_ids_set = set(filtered_ids)
+    ordered_ids = [cid for cid in faiss_ranked_ids if cid in filtered_ids_set]
+
+    # 백오프: 너무 적으면 pool_k 키워 한 번 더 시도 (선택)
+    if len(ordered_ids) < top_k and k < len(ids):
+        k2 = min(len(ids), max(pool_k * 2, top_k * 5))
+        D2, I2 = index.search(qv, k2)
+        faiss_ids2 = [ids[i] for i in I2[0]]
+        qs2 = Cafe.objects.filter(id__in=faiss_ids2)
+        if area_tokens:
+            q_addr2 = Q()
+            for tok in area_tokens:
+                q_addr2 |= Q(address__icontains=tok)
+            qs2 = qs2.filter(q_addr2)
+        filtered2 = set(qs2.values_list("id", flat=True))
+        ordered_ids = [cid for cid in faiss_ids2 if cid in filtered2]
+
+    # 최종 상위 top_k
+    final_ids = ordered_ids[:top_k]
+    # 점수로 안전 정렬
+    final_ids.sort(key=lambda cid: id2score.get(cid, -1e9), reverse=True)
+
+    cafes = list(Cafe.objects.filter(id__in=final_ids))
+    # queryset은 순서 보장 안 하므로 파이썬에서 재정렬
+    id2c = {c.id: c for c in cafes}
+    return [id2c[cid] for cid in final_ids]
+
 # fallback 검색(임베딩 기반 RAG search 함수)
 def search_similar_cafes(query: str, top_k: int = 15):
     """
