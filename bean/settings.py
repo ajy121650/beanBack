@@ -54,7 +54,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://api.beanzari.co.kr",
-    "https://beanzari.co.kr",
+    "https://beanzari.co.kr"
 ]
 
 CORS_ALLOW_CREDENTIALS = True 
@@ -89,7 +89,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bean.wsgi.application'
 
 DATABASES = {
-		"default": {
+		 "default": {
             "ENGINE": "django.db.backends.mysql",
             "NAME": os.environ.get("DB_NAME"),
             "USER": os.environ.get("DB_USER"),
