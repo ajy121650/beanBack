@@ -207,6 +207,15 @@ class CafeChatView(APIView):
     @swagger_auto_schema(
         operation_id="카페 질문하기",
         operation_description="카페에 대한 질문을 합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'question',
+                openapi.IN_QUERY,
+                description="질문 내용",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ],
         responses={200: "Success", 400: "Bad Request"}
     )
     def get(self, request):
