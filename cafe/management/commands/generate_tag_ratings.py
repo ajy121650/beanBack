@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from openai import RateLimitError
 
+# 리뷰 태그 평점 추출 함수
 def get_review_tag_rating_with_retry(text, retries=3):
     for i in range(retries):
         try:
@@ -17,7 +18,7 @@ def get_review_tag_rating_with_retry(text, retries=3):
             time.sleep(wait)
     raise RuntimeError("GPT 호출 재시도 모두 실패")
 
-
+# 카페 태그 평점 처리 함수
 def process_tag_rating(cafe):
     reviews = Review.objects.filter(cafe=cafe)
     combined = "\n".join(r.content for r in reviews).strip()
@@ -26,6 +27,7 @@ def process_tag_rating(cafe):
     
     return get_review_tag_rating_with_retry(combined)
 
+# 스레드 기반 카페 태그 평점 생성 커맨드
 class Command(BaseCommand):
     help = "Generate and save GPT-based CafeTagRating for each cafe"
 

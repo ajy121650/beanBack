@@ -8,6 +8,7 @@ from django.db import close_old_connections
 
 openai.api_key = settings.OPENAI_API_KEY
 
+# 임베딩 생성 함수
 def get_embedding(text, model="text-embedding-3-small"):
     text = text.replace("\n", " ")
     response = openai.embeddings.create(
@@ -16,6 +17,7 @@ def get_embedding(text, model="text-embedding-3-small"):
     )
     return response.data[0].embedding
 
+# 카페 임베딩 처리 함수
 def process_cafe(cafe):
     # 각 스레드에서 새로운 DB 커넥션을 사용하도록
     close_old_connections()
@@ -40,6 +42,7 @@ def process_cafe(cafe):
     finally:
         close_old_connections()
 
+#스레드 기반 카페 임베딩 커맨드
 class Command(BaseCommand):
     help = "Embed cafe descriptions (with address) in parallel"
 

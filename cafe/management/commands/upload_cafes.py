@@ -9,7 +9,7 @@ from django.db import transaction, IntegrityError
 
 from cafe.models import Cafe  # 모델 경로는 프로젝트 구조에 맞게 조정
 
-
+# 카페 데이터 로드 커맨드
 class Command(BaseCommand):
     help = "Load cafes from a JSON file and insert into DB."
 

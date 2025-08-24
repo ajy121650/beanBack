@@ -1,7 +1,7 @@
 # utils/area.py
 import re
 
-# 필요한 지역 키워드만 추가해 가세요 (동/구/역/핫플 상권 키워드)
+# 필요한 지역 키워드 추가 (동/구/역/핫플 상권 키워드)
 AREA_PATTERNS = [
     r"[가-힣]+구", r"[가-힣]+동", r"[가-힣]+역",
     r"홍대|강남|건대|신림|봉천|관악|신촌|합정|성수|압구정|여의도|잠실|사당|노원|왕십리|서울대입구",
@@ -51,5 +51,4 @@ def extract_area_tokens(text: str) -> list[str]:
     # 매핑 적용
     mapped_toks = [token_map.get(t, t) for t in toks]
 
-    # 관악/관악구 같이 둘 다 잡히면 '관악구' 우선 등 정규화도 가능
     return sorted(mapped_toks, key=lambda x: -len(x))
