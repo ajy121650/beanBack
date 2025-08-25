@@ -14,11 +14,11 @@ from drf_yasg import openapi
 import base64
 
 
-# 도면 전체 목록 조회 및 생성 API
+# 배치도 전체 목록 조회 및 생성 API
 class FloorPlanListView(APIView):
     @swagger_auto_schema(
-        operation_id="도면 목록 조회",
-        operation_description="모든 도면의 목록을 반환합니다.",
+        operation_id="배치도 목록 조회",
+        operation_description="모든 배치도의 목록을 반환합니다.",
         responses={200: FloorPlanSerializer(many=True)}
     )
     def get(self, request):
@@ -27,8 +27,8 @@ class FloorPlanListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_id="도면 생성",
-        operation_description="새로운 도면을 생성합니다.",
+        operation_id="배치도 생성",
+        operation_description="새로운 배치도를 생성합니다.",
         request_body=FloorPlanRequestSerializer,
         responses={201: FloorPlanSerializer, 400: "Bad Request"}
     )
@@ -50,11 +50,11 @@ class FloorPlanListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# 도면 개별 상세 조회, 수정, 삭제 API
+# 배치도 개별 상세 조회, 수정, 삭제 API
 class FloorPlanDetailView(APIView):
     @swagger_auto_schema(
-        operation_id="도면 상세 조회",
-        operation_description="floorplan_id에 해당하는 도면의 상세 정보를 반환합니다.",
+        operation_id="배치도 상세 조회",
+        operation_description="floorplan_id에 해당하는 배치도의 상세 정보를 반환합니다.",
         manual_parameters=[
             openapi.Parameter(
                 'floorplan_id',
@@ -75,8 +75,8 @@ class FloorPlanDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
                 
     @swagger_auto_schema(
-        operation_id="도면 수정",
-        operation_description="floorplan_id에 해당하는 도면을 수정합니다.",
+        operation_id="배치도 수정",
+        operation_description="floorplan_id에 해당하는 배치도를 수정합니다.",
         request_body=FloorPlanRequestSerializer,
         responses={200: FloorPlanSerializer, 404: "Not found"}
     )
@@ -89,8 +89,8 @@ class FloorPlanDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
-        operation_id="도면 삭제",
-        operation_description="floorplan_id에 해당하는 도면을 삭제합니다.",
+        operation_id="배치도 삭제",
+        operation_description="floorplan_id에 해당하는 배치도를 삭제합니다.",
         responses={204: "No Content", 404: "Not found"}
     )
     def delete(self, request, floorplan_id):
@@ -102,11 +102,11 @@ class FloorPlanDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-# 점주별 도면 조회 API
+# 점주별 배치도 조회 API
 class FloorPlanOwnerView(APIView):
     @swagger_auto_schema(
-        operation_id="소유자별 도면 조회",
-        operation_description="owner_id에 해당하는 소유자의 모든 도면을 반환합니다.",
+        operation_id="소유자별 배치도 조회",
+        operation_description="owner_id에 해당하는 소유자의 모든 배치도를 반환합니다.",
         manual_parameters=[
             openapi.Parameter(
                 'owner_id',
@@ -130,11 +130,11 @@ class FloorPlanOwnerView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# 카페별 도면 조회 API
+# 카페별 배치도 조회 API
 class FloorPlanCafeView(APIView):
     @swagger_auto_schema(
-        operation_id="카페별 도면 조회",
-        operation_description="cafe_id에 해당하는 카페의 모든 도면을 반환합니다.",
+        operation_id="카페별 배치도 조회",
+        operation_description="cafe_id에 해당하는 카페의 모든 배치도를 반환합니다.",
         manual_parameters=[
             openapi.Parameter(
                 'cafe_id',
@@ -163,7 +163,7 @@ class FloorPlanDetectionView(APIView):
 
     @swagger_auto_schema(
         operation_id="도면 요소 탐지",
-        operation_description="이미지 URL을 통해 도면에서 요소를 탐지합니다.",
+        operation_description="이미지 URL을 통해 도면에서 요소를 탐지해서 배치도 정보를 생성합니다.",
         manual_parameters=[
             openapi.Parameter(
                 'image_url',
